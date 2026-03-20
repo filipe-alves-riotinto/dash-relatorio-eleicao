@@ -9,18 +9,14 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 load_dotenv()
 DATALAKE = os.getenv("DATALAKE")
-#https://datalake.psdb.org.br/
-#https://datalake.psdb.org.br/eleicao2022/fichas2022.parquet
 
 def fichas(ano):
-    response = requests.get(f'{DATALAKE}/{ano}/fichas{ano}.parquet', verify=False)  
+    response = requests.get(f'{DATALAKE}/eleicao{ano}/fichas{ano}.parquet', verify=False)  
     df_fichas = pd.read_parquet(BytesIO(response.content))
-    
-    #df_fichas = pd.read_parquet(f'dados/base/{ano}/fichas{ano}.parquet')
         
     df_fichas = df_fichas[df_fichas['ds_sit_urna'] == 'Consta da urna']
-    df_fichas = df_fichas[df_fichas['sit_partido'].isin (['Deferido', 'Deferido com recurso'])]
-    df_fichas = df_fichas[df_fichas['sit_cand'].isin (['Deferido', 'Deferido com recurso'])]
+    #df_fichas = df_fichas[df_fichas['sit_partido'].isin (['Deferido', 'Deferido com recurso', 'Indeferido em prazo recursal ou com recurso'])]
+    #df_fichas = df_fichas[df_fichas['sit_cand'].isin (['Deferido', 'Deferido com recurso', 'Indeferido em prazo recursal ou com recurso'])]
     df_fichas['ds_eleicao'] = df_fichas['ds_eleicao'].replace({
         'Eleito por média': 'Eleito',
         'Eleito por QP': 'Eleito',
@@ -43,6 +39,8 @@ def fichas(ano):
         
     df_fichas['nm_cargo'] = df_fichas['nm_cargo'].replace({'Deputado Distrital': 'Deputado Estadual'})
     #df_fichas['id_cand'] = df_fichas['id_cand'].astype(str)
+    
+    df_fichas['nm_partido'] = df_fichas['nm_partido'].str.upper()
 
     df_fichas.drop(columns=['ds_sit_urna', 'sit_partido', 'sit_cand', 'nu_cpf',
                             'st_reeleicao', 'dt_atualizacao', 'nu_partido',
@@ -55,4 +53,3 @@ def fichas(ano):
      
     
     return df_fichas
-

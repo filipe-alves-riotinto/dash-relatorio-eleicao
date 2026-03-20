@@ -11,7 +11,6 @@ def municipio():
     response = requests.get(f'{DATALAKE}/municipio.parquet', verify=False)  
     df_municipio = pd.read_parquet(BytesIO(response.content))
     
-    #df_municipio = pd.read_parquet('dados/base/municipio.parquet')
     
     df_municipio = df_municipio[['id','uf', 'nome', 'capital', 'no_regiao_brasil', 'co_uf', 'co_ibge', 'co_regiao_brasil', 'nu_pop']].rename(columns={'uf': 'uf_cand','nome' : 'nm_municipio', 'id': 'id_municipio','co_uf': 'id_uf'})
     df_municipio = df_municipio[~df_municipio['uf_cand'].str.startswith('ZZ')] # Remove linhas com UF ZZ
@@ -23,4 +22,4 @@ def municipio():
     return df_municipio
 
 # print(municipio().dtypes)
-# print(municipio())
+#print(municipio())

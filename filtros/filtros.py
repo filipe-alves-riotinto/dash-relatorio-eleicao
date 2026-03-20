@@ -12,10 +12,19 @@ def filtrar_uf(base):
 def filtro_partido(base):
     # Primeiro: filtro de partido
     selecionar_partido = base['sg_partido'].unique().tolist()
+    
+    # Verifica se o partido default existe nas opções disponíveis
+    partido_default = 'PSDB'
+    if partido_default not in selecionar_partido and selecionar_partido:
+        partido_default = selecionar_partido
+    elif not selecionar_partido:
+        # Se não houver partidos, retorna lista vazia
+        return []
+    
     filtro_partido = st.sidebar.multiselect(
         "Selecione os partidos",
         selecionar_partido,
-        default= 'PSDB',
+        default= partido_default,
         help="Selecione os partidos para filtrar os dados.",
     )
     return filtro_partido

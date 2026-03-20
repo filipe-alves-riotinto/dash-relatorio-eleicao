@@ -10,34 +10,29 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 load_dotenv()
 DATALAKE = os.getenv("DATALAKE")
 
-def votacao(ano, tipo = None):
-    response = requests.get(f'{DATALAKE}/{ano}/votomunicipio{ano}.parquet', verify=False)  
-    df_votacao = pd.read_parquet(BytesIO(response.content)).rename(columns={'sq_candidato': 'id_cand'})
+def votacao(ano):
+    response = requests.get(f'{DATALAKE}/eleicao{ano}/votacao{ano}.parquet', verify=False)  
+    df_votacao = pd.read_parquet(BytesIO(response.content)).rename(
+        columns={
+            'SQ_CANDIDATO': 'id_cand', 
+            'SG_UE': 'co_uf',
+            'CD_MUNICIPIO': 'id_municipio',
+            'QT_VOTOS_NOMINAIS_VALIDOS' : 'qt_votos_nom_validos'})
     
-    #df_votacao = pd.read_parquet(f'dados/base/{ano}/votos{ano}.parquet').rename(columns={'sq_candidato': 'id_cand'})
+    #df_votacao = pd.read_parquet(f'dados/baseDash/{ano}/votos{ano}.parquet').rename(columns={'sq_candidato': 'id_cand'})
     df_votacao['qt_votos_nom_validos'] = df_votacao['qt_votos_nom_validos'].astype('Int64')
-    if ano == '2022':
-        if tipo == 'estadual':
-            # Soma os votos por estado
-            df_resultado = df_votacao.groupby(['co_uf', 'id_cand']).agg({
-                'qt_votos_nom_validos': 'sum'
-            }).reset_index().rename(columns={'co_uf': 'id_uf'}).astype('Int64')
-            
-        elif tipo == 'federal':
-            # Soma os votos totais
-            df_resultado = df_votacao.groupby(['id_cand']).agg({
-                'qt_votos_nom_validos': 'sum'
-            }).reset_index()
-
-        else:
-            # Votos por municipio.
-            df_resultado = df_votacao[['co_uf','id','id_cand','qt_votos_nom_validos']].rename(columns={'co_uf': 'id_uf','id': 'id_municipio'})
-
-
+    
+    df_votacao = df_votacao[df_votacao['NR_TURNO'] == 1].copy()
+    
+    # Verificar se a coluna CD_MUNICIPIO existe
+    if 'id_municipio' in df_votacao.columns:
+        # Agrupar com id_municipio
+        df_resultado = df_votacao.groupby(['id_cand', 'co_uf', 'id_municipio'])['qt_votos_nom_validos'].sum().reset_index()
     else:
-        df_resultado = df_votacao[['sg_uf','id_cand','qt_votos_nom_validos']].rename(columns={'sg_uf': 'id_municipio'})
+        # Agrupar sem id_municipio
+        df_resultado = df_votacao.groupby(['id_cand'])['qt_votos_nom_validos'].sum().reset_index()
     
     return df_resultado
 
 #print(votacao('2022', tipo='federal').dtypes)
-#print(votacao('2022', tipo='federal'))
+#print(votacao(2022))

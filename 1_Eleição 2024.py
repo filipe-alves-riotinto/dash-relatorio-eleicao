@@ -9,7 +9,7 @@ from filtros.filtros import filtro_eleitorado, filtrar_uf, filtro_partido
 import plotly.express as px
 
 
-def exibir_vereadores(df, filtro_resultado):
+def exibir_vereadores_APAGAR(df, filtro_resultado):
     
     st.title('Vereadores')
     #APLICA FILTRO DE RESULTADO DA ELEIÇÃO
@@ -46,21 +46,25 @@ def main():
         # Seleção de aba via sidebar (opcional)
         aba_selecionada = st.radio(
             "Cargo:",
-            ["🧑‍💼 Prefeitos", "👥 Vereadores"]
+            ["Prefeitos", "Vice-Prefeitos", "Vereadores"]
         )
-        cargo = 'Prefeito' if aba_selecionada == "🧑‍💼 Prefeitos" else 'Vereador'
+        
+        if aba_selecionada == "Prefeitos":
+            cargo = 'Prefeito'
+        elif aba_selecionada == "Vice-Prefeitos":
+            cargo = 'Vice-prefeito'
+        elif aba_selecionada == "Vereadores":
+            cargo = 'Vereador'
+        
         df = df[df['nm_cargo'] == cargo]
         
-        #RESULTADO
-        opcoes_resultado = ["Eleito", "Não eleito"]
-        filtro_resultado = st.sidebar.pills("Resultado:", opcoes_resultado, selection_mode="single", default="Eleito")
-
-
     #Chama a aba
-    if aba_selecionada == "🧑‍💼 Prefeitos":
-        exibir_pagina(df, filtro_resultado, pagina=cargo)
+    if aba_selecionada == "Prefeitos":
+        exibir_pagina(df, pagina=cargo)
+    elif aba_selecionada == "Vice-Prefeitos":
+        exibir_pagina(df, pagina=cargo)
     else:
-        exibir_pagina(df, filtro_resultado, pagina=cargo)
+        exibir_pagina(df, pagina=cargo)
 
 
 if __name__ == "__main__":

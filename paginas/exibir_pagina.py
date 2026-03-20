@@ -8,9 +8,13 @@ from filtros.filtros import filtro_eleitorado, filtrar_uf, filtro_partido
 import plotly.express as px
 
 
-def exibir_pagina(df, filtro_resultado, pagina):
-    st.title(f'{pagina}')
-        #APLICA FILTRO DE RESULTADO DA ELEIÇÃO
+def exibir_pagina(df, pagina):
+
+    #RESULTADO
+    opcoes_resultado = ["Eleito", "Não eleito"]
+    filtro_resultado = st.sidebar.pills("Resultado:", opcoes_resultado, selection_mode="single")
+    
+    #APLICA FILTRO DE RESULTADO DA ELEIÇÃO
     if filtro_resultado is not None:
         df_resultado = df[df['ds_eleicao'] == filtro_resultado]
     else:
@@ -32,6 +36,7 @@ def exibir_pagina(df, filtro_resultado, pagina):
     else:
         base_filtrada = base_filtrada_partido
     
+    st.title(f'{pagina}')
     relatorio_candidato(df, base_filtrada, ufs=filtro_uf, partidos=filtro_partido_selecioando, cargo = pagina)
 
     # #MONTAR ABAS

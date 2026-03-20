@@ -8,11 +8,11 @@ load_dotenv()
 DATALAKE = os.getenv("DATALAKE")
 
 def eleitorado(ano):
-    response = requests.get(f'{DATALAKE}/{ano}/eleitorado{ano}.parquet', verify=False)  
+    response = requests.get(f'{DATALAKE}/eleicao{ano}/eleitorado{ano}.parquet', verify=False)  
     df_eleitorado = pd.read_parquet(BytesIO(response.content))
     
-    #df_eleitorado = pd.read_parquet(f'dados/base/{ano}/eleitorado{ano}.parquet')
+    #df_eleitorado = pd.read_parquet(f'dados/baseDash/{ano}/eleitorado{ano}.parquet')
     
-    df_eleitorado['Eleitorado'] = df_eleitorado['Eleitorado'].astype('Int64')
-    #df_eleitorado['Eleitorado'] = df_eleitorado['Eleitorado'].fillna(0)
+    df_eleitorado['QT_ELEITORES_PERFIL'] = df_eleitorado['QT_ELEITORES_PERFIL'].astype('Int64')
+    
     return df_eleitorado
